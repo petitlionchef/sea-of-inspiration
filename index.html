@@ -12,13 +12,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="icon-512.svg">
 <link rel="apple-touch-icon" sizes="167x167" href="icon-512.svg">
 <link rel="apple-touch-icon" sizes="152x152" href="icon-512.svg">
-<!-- Splash screens -->
-<link rel="apple-touch-startup-image" href="splash.svg" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
-<link rel="apple-touch-startup-image" href="splash.svg" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
-<link rel="apple-touch-startup-image" href="splash.svg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
-<link rel="apple-touch-startup-image" href="splash.svg" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
-<link rel="apple-touch-startup-image" href="splash.svg" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)">
-<link rel="apple-touch-startup-image" href="splash.svg">
+<!-- Splash screens - PNG required for Apple -->
+<link rel="apple-touch-startup-image" href="splash.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)">
+<link rel="apple-touch-startup-image" href="splash.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="splash.png" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
+<link rel="apple-touch-startup-image" href="splash.png">
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
 <style>
@@ -166,7 +166,8 @@ textarea.field::placeholder { color:rgba(58,143,170,0.45); }
   background:rgba(90,175,204,0.2);
   color:#2a7090; font-size:1.1rem; font-weight:300;
   cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:all 0.2s; flex-shrink:0; line-height:1;
+  transition:all 0.2s; flex-shrink:0; flex-grow:0; line-height:1;
+  min-width:33px;
 }
 .send-btn:hover { background:rgba(90,175,204,0.38); color:#1a5068; transform:scale(1.08); }
 
@@ -750,6 +751,22 @@ searchClear.addEventListener('click', () => {
 
 window.addEventListener('resize', () => { resizeCanvas(); renderAll(); });
 setTimeout(renderAll, 150);
+
+// ── Share Target handler ────────────────────────────────────
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  const shared = params.get('share_url') || params.get('share_text') || params.get('share_title');
+  if (shared && shared.trim()) {
+    const f = document.getElementById('field');
+    f.value = shared.trim();
+    f.style.height = 'auto';
+    f.style.height = f.scrollHeight + 'px';
+    // Auto-submit after brief delay so page finishes rendering
+    setTimeout(() => addItem(), 400);
+    // Clean URL so refresh doesn't re-submit
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
 </script>
 </body>
 </html>
