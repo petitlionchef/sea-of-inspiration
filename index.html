@@ -556,7 +556,6 @@ async function addItem() {
   const raw = f.value.trim(); if (!raw) return;
   const isUrl = /^https?:\/\//.test(raw);
 
-  // Disable button while processing
   const btn = document.getElementById('sendBtn');
   btn.textContent = '…'; btn.disabled = true;
 
@@ -564,10 +563,17 @@ async function addItem() {
   let url = isUrl ? cleanUrl(raw) : null;
 
   if (isUrl) {
-    const title = await fetchTitle(raw);
-    if (title) displayText = title;
+    try {
+      // Hard 7s cap — no matter what fetchTitle does, we move on
+      const title = await Promise.race([
+        fetchTitle(raw),
+        new Promise(res => setTimeout(() => res(null), 7000))
+      ]);
+      if (title) displayText = title;
+    } catch(e) { /* ignore, use raw URL as text */ }
   }
 
+  btn.textContent = '+'; btn.disabled = false;
   const item = {
     id: Date.now(),
     text: displayText,
@@ -575,8 +581,6 @@ async function addItem() {
     cat: autoCategory(displayText),
     date: new Date().toLocaleDateString('zh-TW')
   };
-
-  btn.textContent = '+'; btn.disabled = false;
   items.unshift(item); save(); f.value = ''; f.style.height = 'auto';
   renderAll(); doSplash();
 }
