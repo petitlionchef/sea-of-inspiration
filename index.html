@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no, maximum-scale=1.0">
 <meta name="description" content="每一個念頭，都值得漂浮於此">
 <meta name="theme-color" content="#5aafcc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -752,7 +752,42 @@ searchClear.addEventListener('click', () => {
 window.addEventListener('resize', () => { resizeCanvas(); renderAll(); });
 setTimeout(renderAll, 150);
 
-// ── Share Target handler ────────────────────────────────────
+// ── Splash Screen ───────────────────────────────────────────
+(function() {
+  // Only show if launched as PWA (standalone) or first visit
+  const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  const lastSplash = sessionStorage.getItem('splashShown');
+  if (lastSplash) return; // Don't show again in same session
+  sessionStorage.setItem('splashShown', '1');
+
+  const splash = document.createElement('div');
+  splash.style.cssText = `
+    position:fixed; inset:0; z-index:9999;
+    background:linear-gradient(180deg, #d8f0fc 0%, #a0d8f0 50%, #5aafcc 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity 0.6s ease;
+  `;
+  splash.innerHTML = `
+    <div style="position:absolute;top:12%;left:10%;width:90px;height:90px;border-radius:50%;
+      background:radial-gradient(circle at 40% 40%, #fffbe0, #f8d840);
+      box-shadow:0 0 60px rgba(248,216,64,0.5)"></div>
+    <div style="font-family:'Noto Serif TC',serif;font-size:2.4rem;font-weight:300;
+      letter-spacing:0.5em;color:#1a4a5e;text-shadow:0 1px 0 rgba(255,255,255,0.5);
+      margin-bottom:0.6rem">靈感之海</div>
+    <div style="font-size:0.7rem;letter-spacing:0.2em;color:#3a7a94;opacity:0.7">
+      每一個念頭，都值得漂浮於此</div>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:30%;
+      background:linear-gradient(180deg,transparent,#5aafcc 40%,#2a7090);
+      clip-path:polygon(0 40%, 15% 25%, 30% 35%, 45% 20%, 60% 32%, 75% 18%, 90% 28%, 100% 15%, 100% 100%, 0 100%)"></div>
+  `;
+  document.body.appendChild(splash);
+
+  // Fade out after 1.6s
+  setTimeout(() => {
+    splash.style.opacity = '0';
+    setTimeout(() => splash.remove(), 650);
+  }, 1600);
+})();
 (async () => {
   const params = new URLSearchParams(window.location.search);
   const shared = params.get('share_url') || params.get('share_text') || params.get('share_title');
