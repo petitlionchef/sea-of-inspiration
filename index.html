@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>靈感之海</title>
 <meta name="description" content="每一個念頭，都值得漂浮於此">
 <meta name="theme-color" content="#5aafcc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -121,7 +120,7 @@ body {
 /* ── UI Layer ── */
 .ui { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column; pointer-events:none; }
 
-header { pointer-events:all; text-align:center; padding:1.6rem 1rem 0.5rem; }
+header { pointer-events:all; text-align:center; padding:max(1.6rem, env(safe-area-inset-top, 1.6rem) + 0.8rem) 1rem 0.5rem; }
 .title {
   font-family:'Cormorant Garamond',serif;
   font-size:clamp(1.8rem,4vw,3rem); font-weight:300; letter-spacing:0.4em;
