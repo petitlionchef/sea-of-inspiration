@@ -394,20 +394,41 @@ function waveTopScreenY() {
 }
 
 // ── URL Title Fetching ─────────────────────────────────────
-async function fetchTitle(url) {
+function cleanUrl(url) {
   try {
-    if (/youtu\.?be|youtube\.com/.test(url)) {
-      const res = await fetch(
-        `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
-      );
+    const u = new URL(url);
+    // Remove common tracking params
+    ['fbclid','utm_source','utm_medium','utm_campaign','utm_content','utm_term',
+     'gclid','mc_eid','ref','source','_ga','fbid','aem_id'].forEach(p => u.searchParams.delete(p));
+    // Also strip any param starting with fbclid / aem_ / _
+    [...u.searchParams.keys()].forEach(k => {
+      if (k.startsWith('aem_') || k.startsWith('fbclid') || k.startsWith('_')) u.searchParams.delete(k);
+    });
+    return u.toString();
+  } catch(e) { return url; }
+}
+
+function timeout(ms) {
+  return new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+}
+
+async function fetchTitle(url) {
+  const clean = cleanUrl(url);
+  try {
+    if (/youtu\.?be|youtube\.com/.test(clean)) {
+      const res = await Promise.race([
+        fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(clean)}&format=json`),
+        timeout(5000)
+      ]);
       if (res.ok) {
         const data = await res.json();
         if (data.title) return data.title.trim();
       }
     }
-    const res = await fetch(
-      `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
-    );
+    const res = await Promise.race([
+      fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(clean)}`),
+      timeout(6000)
+    ]);
     const data = await res.json();
     const html = data.contents || '';
     const og = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
@@ -529,7 +550,7 @@ async function addItem() {
   btn.textContent = '…'; btn.disabled = true;
 
   let displayText = raw;
-  let url = isUrl ? raw : null;
+  let url = isUrl ? cleanUrl(raw) : null;
 
   if (isUrl) {
     const title = await fetchTitle(raw);
