@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>靈感之海</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --sky1:#c8e8f8; --sky2:#a0d0ee; --sea1:#5aafcc; --sea2:#3d8faa; --sea3:#2a7090;
+  --white:#ffffff; --ink:#1a3a4a;
+  --research:#7a9db5; --edu:#7aaa96; --parenting:#a990b8; --creative:#c0a080; --misc:#8fa4ae;
+}
+body {
+  font-family:'Noto Serif TC',serif;
+  background:var(--sky1);
+  color:var(--ink);
+  height:100vh; overflow:hidden;
+}
+
+/* ── Background ── */
+.bg { position:fixed; inset:0; z-index:0; }
+
+.sky {
+  position:absolute; inset:0;
+  background:linear-gradient(180deg,
+    #d8f0fc 0%,
+    #b8dff5 30%,
+    #96cee8 60%,
+    #78bedd 80%,
+    #5aafcc 100%
+  );
+}
+
+/* Soft clouds */
+.cloud {
+  position:absolute;
+  background:rgba(255,255,255,0.55);
+  border-radius:50px;
+  filter:blur(18px);
+  animation:driftCloud linear infinite;
+}
+@keyframes driftCloud {
+  0%   { transform:translateX(0); }
+  100% { transform:translateX(120px); }
+}
+
+/* Sun */
+.sun {
+  position:absolute; top:8%; left:12%;
+  width:60px; height:60px; border-radius:50%;
+  background:radial-gradient(circle at 45% 45%, #fffbe0, #f8d840);
+  box-shadow:0 0 40px rgba(248,216,64,0.5), 0 0 80px rgba(248,216,64,0.2);
+}
+
+/* Canvas ocean */
+#oceanCanvas {
+  position:absolute; bottom:0; left:0; width:100%; height:38%; display:block;
+}
+
+/* ── Bubbles ── */
+.stage { position:fixed; inset:0; z-index:10; pointer-events:none; }
+
+.bubble {
+  position:absolute; border-radius:50%;
+  pointer-events:all; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  transition:filter 0.2s, transform 0.2s;
+}
+.bubble:hover { filter:brightness(1.1) saturate(1.15); transform:scale(1.07) !important; z-index:50; }
+.btxt {
+  font-size:0.6rem; line-height:1.35;
+  color:rgba(255,255,255,0.95);
+  text-shadow:0 1px 3px rgba(0,0,0,0.2);
+  max-width:78%; overflow:hidden;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;
+  word-break:break-word;
+}
+
+/* Search — fixed bottom right */
+.search-float {
+  position:fixed; bottom:1.5rem; right:1.5rem; z-index:30;
+  pointer-events:all;
+}
+.search-row {
+  display:flex; align-items:center; gap:0.5rem;
+  background:rgba(255,255,255,0.65);
+  border:1px solid rgba(90,175,204,0.3);
+  border-radius:20px; padding:0.38rem 0.9rem;
+  backdrop-filter:blur(12px);
+  box-shadow:0 2px 12px rgba(58,143,170,0.12);
+  transition:all 0.25s; width:160px;
+}
+.search-row:focus-within {
+  background:rgba(255,255,255,0.85);
+  border-color:rgba(90,175,204,0.55);
+  width:220px;
+}
+.search-icon { color:#5a9ab8; font-size:0.72rem; flex-shrink:0; }
+.search-input {
+  flex:1; background:none; border:none; outline:none;
+  color:#1a3a4a; font-family:'Noto Serif TC',serif; font-size:0.78rem;
+  width:0; min-width:0;
+}
+.search-input::placeholder { color:rgba(58,143,170,0.4); }
+.search-clear {
+  background:none; border:none; cursor:pointer;
+  color:rgba(58,143,170,0.5); font-size:0.85rem; padding:0; line-height:1;
+  display:none; flex-shrink:0;
+}
+.search-clear.show { display:block; }
+
+/* ── UI Layer ── */
+.ui { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column; pointer-events:none; }
+
+header { pointer-events:all; text-align:center; padding:1.6rem 1rem 0.5rem; }
+.title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.8rem,4vw,3rem); font-weight:300; letter-spacing:0.4em;
+  color:#1a4a5e;
+  text-shadow:0 1px 0 rgba(255,255,255,0.6);
+  margin-bottom:0.15rem;
+}
+.sub { font-size:0.62rem; letter-spacing:0.22em; color:#3a7a94; opacity:0.75; }
+
+.input-area { pointer-events:all; padding:0.8rem 1.2rem 0.4rem; max-width:640px; margin:0 auto; width:100%; }
+.input-row {
+  display:flex; align-items:center; gap:0.6rem;
+  background:rgba(255,255,255,0.55);
+  border:1px solid rgba(90,175,204,0.3);
+  border-radius:14px; padding:0.65rem 0.8rem;
+  backdrop-filter:blur(12px);
+  box-shadow:0 2px 16px rgba(58,143,170,0.1);
+  transition:border-color 0.3s, box-shadow 0.3s;
+}
+.input-row:focus-within {
+  border-color:rgba(90,175,204,0.6);
+  box-shadow:0 2px 24px rgba(58,143,170,0.18);
+}
+textarea.field {
+  flex:1; background:none; border:none; outline:none;
+  color:#1a3a4a; font-family:'Noto Serif TC',serif;
+  font-size:0.88rem; resize:none; min-height:22px; max-height:80px; line-height:1.5;
+}
+textarea.field::placeholder { color:rgba(58,143,170,0.45); }
+.send-btn {
+  width:33px; height:33px; border-radius:10px;
+  border:1px solid rgba(90,175,204,0.4);
+  background:rgba(90,175,204,0.2);
+  color:#2a7090; font-size:1.1rem; font-weight:300;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all 0.2s; flex-shrink:0; line-height:1;
+}
+.send-btn:hover { background:rgba(90,175,204,0.38); color:#1a5068; transform:scale(1.08); }
+
+.cat-row { display:flex; gap:0.4rem; flex-wrap:wrap; padding:0.45rem 0 0; }
+.cat-chip {
+  padding:0.18rem 0.65rem; border-radius:20px; border:1px solid;
+  background:rgba(255,255,255,0.4);
+  font-family:'Noto Serif TC',serif; font-size:0.67rem;
+  cursor:pointer; letter-spacing:0.04em; transition:all 0.18s; opacity:0.5;
+}
+.cat-chip.active { opacity:1; background:rgba(255,255,255,0.7); }
+
+.filter-bar { pointer-events:all; display:flex; gap:0.35rem; flex-wrap:wrap; padding:0 1.2rem 0.3rem; max-width:640px; margin:0 auto; width:100%; }
+.f-chip {
+  padding:0.2rem 0.7rem; border-radius:20px;
+  border:1px solid rgba(90,175,204,0.3);
+  background:rgba(255,255,255,0.35);
+  color:rgba(26,58,74,0.55);
+  font-family:'Noto Serif TC',serif; font-size:0.67rem;
+  cursor:pointer; transition:all 0.18s;
+}
+.f-chip.active,.f-chip:hover {
+  background:rgba(255,255,255,0.65);
+  border-color:rgba(90,175,204,0.55); color:#1a3a4a;
+}
+.f-chip[data-f="research"] { border-color:rgba(122,157,181,0.5); color:#7a9db5; }
+.f-chip[data-f="edu"]      { border-color:rgba(122,170,150,0.5); color:#7aaa96; }
+.f-chip[data-f="parenting"]{ border-color:rgba(169,144,184,0.5); color:#a990b8; }
+.f-chip[data-f="creative"] { border-color:rgba(192,160,128,0.5); color:#c0a080; }
+.f-chip[data-f="misc"]     { border-color:rgba(143,164,174,0.5); color:#8fa4ae; }
+.f-chip[data-f="research"].active { border-color:#7a9db5; background:rgba(122,157,181,0.18); }
+.f-chip[data-f="edu"].active      { border-color:#7aaa96; background:rgba(122,170,150,0.18); }
+.f-chip[data-f="parenting"].active{ border-color:#a990b8; background:rgba(169,144,184,0.18); }
+.f-chip[data-f="creative"].active { border-color:#c0a080; background:rgba(192,160,128,0.18); }
+.f-chip[data-f="misc"].active     { border-color:#8fa4ae; background:rgba(143,164,174,0.18); }
+.action-chip { opacity:1 !important; }
+.spacer { flex:1; }
+
+/* ── Panel ── */
+.overlay { position:fixed; inset:0; background:rgba(10,40,60,0.35); z-index:50; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+.overlay.on { opacity:1; pointer-events:all; }
+.panel {
+  position:fixed; bottom:-100%; left:0; right:0;
+  background:rgba(240,252,255,0.97);
+  backdrop-filter:blur(24px);
+  border-top:1px solid rgba(90,175,204,0.25);
+  border-radius:22px 22px 0 0;
+  padding:1.2rem 1.5rem 2.2rem; z-index:70;
+  transition:bottom 0.38s cubic-bezier(0.34,1.4,0.64,1);
+  max-height:72vh; overflow-y:auto;
+  color:var(--ink);
+}
+.panel.open { bottom:0; }
+.handle { width:36px; height:3px; background:rgba(90,175,204,0.3); border-radius:2px; margin:0 auto 1.2rem; }
+.p-cat { font-size:0.63rem; letter-spacing:0.2em; color:var(--sea2); margin-bottom:0.5rem; text-transform:uppercase; }
+.p-text { font-size:0.95rem; line-height:1.75; color:var(--ink); margin-bottom:0.8rem; }
+.p-link { display:none; font-size:0.78rem; color:var(--research); text-decoration:none; border-bottom:1px solid rgba(46,126,184,0.25); word-break:break-all; margin-bottom:0.8rem; }
+.p-date { font-size:0.68rem; color:rgba(26,58,74,0.4); margin-bottom:1.2rem; }
+.p-actions { display:flex; gap:0.55rem; }
+.p-btn { flex:1; padding:0.62rem 0.3rem; border-radius:11px; border:1px solid rgba(90,175,204,0.25); background:rgba(90,175,204,0.08); color:#2a7090; font-family:'Noto Serif TC',serif; font-size:0.73rem; cursor:pointer; transition:all 0.18s; text-align:center; }
+.p-btn:hover { background:rgba(90,175,204,0.18); color:#1a4a5e; }
+.p-btn.pri { border-color:rgba(90,175,204,0.45); color:#1a4a5e; background:rgba(90,175,204,0.14); font-weight:400; }
+.p-btn.del { border-color:rgba(200,80,80,0.2); color:rgba(180,60,60,0.7); }
+
+@keyframes splashOut {
+  0%   { transform:translate(-50%,-50%) scale(0.2); opacity:0.8; }
+  100% { transform:translate(-50%,-50%) scale(2.8); opacity:0; }
+}
+.splash-ring { position:fixed; width:55px; height:55px; border-radius:50%; border:1.5px solid rgba(90,175,204,0.7); pointer-events:none; z-index:9999; animation:splashOut 0.55s ease-out forwards; }
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="sky"></div>
+
+  <!-- Soft clouds -->
+  <div class="cloud" style="width:220px;height:50px;top:12%;left:20%;animation-duration:28s;animation-delay:-5s;opacity:0.7"></div>
+  <div class="cloud" style="width:140px;height:35px;top:18%;left:55%;animation-duration:22s;animation-delay:-12s;opacity:0.5"></div>
+  <div class="cloud" style="width:180px;height:40px;top:9%;left:72%;animation-duration:32s;animation-delay:-8s;opacity:0.6"></div>
+
+  <div class="sun"></div>
+
+  <canvas id="oceanCanvas"></canvas>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<div class="ui">
+  <header>
+    <div class="title">靈感之海</div>
+    <div class="sub">每一個念頭，都值得漂浮於此</div>
+  </header>
+  <div class="input-area">
+    <div class="input-row">
+      <textarea class="field" id="field" placeholder="貼入連結，或打下任何念頭……" rows="1"></textarea>
+      <button class="send-btn" id="sendBtn">+</button>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <button class="f-chip active" data-f="all">全部</button>
+    <button class="f-chip" data-f="research">研究</button>
+    <button class="f-chip" data-f="edu">教育</button>
+    <button class="f-chip" data-f="parenting">育兒</button>
+    <button class="f-chip" data-f="creative">創意</button>
+    <button class="f-chip" data-f="misc">其他</button>
+    <button class="f-chip action-chip" id="exportAllBtn" style="margin-left:auto;border-color:rgba(90,175,204,0.4);color:#3a7a94;">匯出全部</button>
+    <button class="f-chip action-chip" id="backupBtn" style="border-color:rgba(122,170,150,0.5);color:#7aaa96;">備份 ↓</button>
+    <label class="f-chip action-chip" id="restoreLabel" style="border-color:rgba(169,144,184,0.5);color:#a990b8;cursor:pointer;">還原 ↑
+      <input type="file" id="restoreInput" accept=".json" style="display:none">
+    </label>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- Floating search bottom-right -->
+<div class="search-float">
+  <div class="search-row">
+    <span class="search-icon">&#9906;</span>
+    <input class="search-input" id="searchInput" placeholder="搜尋……" type="text">
+    <button class="search-clear" id="searchClear">&#10005;</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="panel" id="panel">
+  <div class="handle"></div>
+  <div class="p-cat" id="pCat"></div>
+  <div class="p-text" id="pText"></div>
+  <a class="p-link" id="pLink" target="_blank"></a>
+  <div class="p-date" id="pDate"></div>
+  <div class="p-actions">
+    <button class="p-btn pri" id="notebookBtn">→ NotebookLM</button>
+    <button class="p-btn" id="copyBtn">複製</button>
+    <button class="p-btn del" id="delBtn">刪除</button>
+    <button class="p-btn" id="closeBtn">關閉</button>
+  </div>
+</div>
+
+<script>
+// ── Canvas wave ────────────────────────────────────────────
+const canvas = document.getElementById('oceanCanvas');
+const ctx    = canvas.getContext('2d');
+let wt = 0;
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = Math.round(window.innerHeight * 0.38);
+}
+resizeCanvas();
+
+let frontWaveTopPx = 0; // track top of front wave in canvas px
+
+function drawWaveLayer(yBase, amp, freq, phase, colorTop, colorBot) {
+  const W = canvas.width, H = canvas.height;
+  const grad = ctx.createLinearGradient(0, yBase - amp, 0, H);
+  grad.addColorStop(0, colorTop);
+  grad.addColorStop(1, colorBot);
+
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  for (let x = 0; x <= W; x += 3) {
+    const nx = x / W;
+    const y = yBase
+      - amp * Math.sin(nx * freq * Math.PI * 2 + phase)
+      - amp * 0.3 * Math.sin(nx * freq * 1.6 * Math.PI * 2 + phase * 1.2);
+    if (x === 0) ctx.lineTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W, H);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+function drawCrestLine(yBase, amp, freq, phase, color) {
+  const W = canvas.width;
+  ctx.beginPath();
+  for (let x = 0; x <= W; x += 3) {
+    const nx = x / W;
+    const y = yBase
+      - amp * Math.sin(nx * freq * Math.PI * 2 + phase)
+      - amp * 0.3 * Math.sin(nx * freq * 1.6 * Math.PI * 2 + phase * 1.2);
+    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function getWaveMinY(yBase, amp, freq, phase) {
+  const W = canvas.width;
+  let min = yBase;
+  for (let x = 0; x <= W; x += 8) {
+    const nx = x / W;
+    const y = yBase
+      - amp * Math.sin(nx * freq * Math.PI * 2 + phase)
+      - amp * 0.3 * Math.sin(nx * freq * 1.6 * Math.PI * 2 + phase * 1.2);
+    if (y < min) min = y;
+  }
+  return min;
+}
+
+function drawOcean() {
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const yBase2 = H * 0.55;
+  const yBase1 = H * 0.38;
+  const amp2   = H * 0.04;
+  const amp1   = H * 0.055;
+
+  // Back wave — softer, lighter
+  drawWaveLayer(yBase2, amp2, 1.8, wt * 0.6,
+    'rgba(80,160,185,0.45)',
+    'rgba(45,115,140,0.75)');
+
+  // Front wave — gentle, not too tall
+  drawWaveLayer(yBase1, amp1, 2.2, wt,
+    'rgba(72,155,182,0.6)',
+    'rgba(38,105,132,0.88)');
+
+  // Very soft crest
+  drawCrestLine(yBase1, amp1, 2.2, wt, 'rgba(255,255,255,0.22)');
+
+  frontWaveTopPx = getWaveMinY(yBase1, amp1, 2.2, wt);
+
+  wt += 0.010;
+  requestAnimationFrame(drawOcean);
+}
+drawOcean();
+
+function waveTopScreenY() {
+  const rect = canvas.getBoundingClientRect();
+  return rect.top + (frontWaveTopPx / canvas.height) * rect.height;
+}
+
+// ── URL Title Fetching ─────────────────────────────────────
+async function fetchTitle(url) {
+  try {
+    if (/youtu\.?be|youtube\.com/.test(url)) {
+      const res = await fetch(
+        `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.title) return data.title.trim();
+      }
+    }
+    const res = await fetch(
+      `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
+    );
+    const data = await res.json();
+    const html = data.contents || '';
+    const og = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
+             || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
+    if (og) return og[1].trim();
+    const t = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    if (t) return t[1].trim().replace(/\s*[-|].*$/, '').trim();
+  } catch(e) { console.log('[fetchTitle] Error:', e.message); }
+  return null;
+}
+
+// ── Data ───────────────────────────────────────────────────
+const SK = 'linggan_v6';
+let items = JSON.parse(localStorage.getItem(SK) || '[]');
+let selCat = 'research', activeFilter = 'all', activeItem = null;
+
+const catLabel = { research:'研究', edu:'教育', parenting:'育兒', creative:'創意', misc:'其他' };
+const catRGB   = { research:[122,157,181], edu:[122,170,150], parenting:[169,144,184], creative:[192,160,128], misc:[143,164,174] };
+const catKeywords = {
+  research: ['研究','論文','paper','journal','study','理論','文獻','microcues','發展','neuroscience','psychology','cognitive','science','academic','scaffolding','vygotsky','piaget','attachment','bowlby','developmental','brain','regulation','executive function','schema'],
+  edu:      ['教育','課程','tc','columbia','學習','teaching','curriculum','literacy','讀寫','classroom','pedagogy','montessori','reggio','play-based','early childhood','preschool','kindergarten','lesson','assessment','instruction','educator','師資'],
+  parenting:['育兒','孩子','寶寶','兒童','child','baby','親子','共調','co-regulation','情緒','caregiver','parenting','tantrum','toddler','infant','發脾氣','安撫','依附','照顧','家長','媽媽','爸爸','親職'],
+  creative: ['創意','設計','靈感','idea','concept','品牌','brand','product','產品','app','tool','startup','ux','ui','prototype','mvp','pitch','business','商業','創業','行銷','marketing','content','instagram','podcast'],
+};
+function autoCategory(text) {
+  const t = text.toLowerCase();
+  for (const [cat, kws] of Object.entries(catKeywords))
+    if (kws.some(k => t.includes(k))) return cat;
+  return 'misc';
+}
+
+// ── Bubble placement ───────────────────────────────────────
+const placed = [];
+const bubblePhases = {};
+
+function placePos(rad, index, total) {
+  const W = window.innerWidth;
+  const topY = waveTopScreenY();
+  // index 0 = newest (near wave), higher index = older (floats higher)
+  const layerOffset = total > 1 ? (index / (total - 1)) * 80 : 0;
+  for (let a = 0; a < 120; a++) {
+    const x = rad + 20 + Math.random() * (W - rad * 2 - 40);
+    const y = topY - rad + 6 - Math.random() * 14 - layerOffset;
+    const ok = !placed.some(p => {
+      const dx = p.x - x, dy = p.y - y;
+      return Math.sqrt(dx * dx + dy * dy) < p.r + rad + 12;
+    });
+    if (ok) return { x, y };
+  }
+  return { x: rad + 20 + Math.random() * (W - rad * 2 - 40), y: topY - rad - layerOffset };
+}
+
+function makeBubble(item, index, total) {
+  const [r, g, b] = catRGB[item.cat] || [143,164,174];
+  const rad = 40 + Math.min(item.text.length * 0.4, 26);
+  const { x, y } = placePos(rad, index, total);
+  placed.push({ x, y, r: rad, id: item.id });
+  bubblePhases[item.id] = Math.random() * Math.PI * 2;
+
+  const el = document.createElement('div');
+  el.className = 'bubble';
+  el.id = 'b' + item.id;
+  el.dataset.baseY = y;
+  el.style.cssText = `
+    width:${rad*2}px; height:${rad*2}px;
+    left:${x-rad}px; top:${y-rad}px;
+    background: radial-gradient(circle at 33% 30%,
+      rgba(${r+40},${g+40},${b+40},0.82),
+      rgba(${r},${g},${b},0.72) 55%,
+      rgba(${Math.max(0,r-15)},${Math.max(0,g-15)},${Math.max(0,b-15)},0.78));
+    border: 1.5px solid rgba(255,255,255,0.55);
+    box-shadow: 0 4px ${rad*0.5}px rgba(${r},${g},${b},0.18),
+                0 1px 8px rgba(255,255,255,0.35) inset;
+  `;
+  el.innerHTML = `
+    <div style="position:absolute;left:${rad*0.18}px;top:${rad*0.16}px;width:${rad*0.3}px;height:${rad*0.17}px;border-radius:50%;background:rgba(255,255,255,0.28);transform:rotate(-28deg);pointer-events:none"></div>
+    <div class="btxt">${trunc(item.text, 38)}</div>
+  `;
+  el.addEventListener('click', () => openPanel(item));
+  return el;
+}
+
+// Wave-synced bobbing
+let bobT = 0;
+function bobLoop() {
+  bobT += 0.016;
+  const stage = document.getElementById('stage');
+  if (stage) {
+    stage.querySelectorAll('.bubble').forEach(el => {
+      const id = parseInt(el.id.replace('b',''));
+      const phase = bubblePhases[id] || 0;
+      const bob = Math.sin(bobT + phase) * 6 + Math.sin(bobT * 0.6 + phase) * 2.5;
+      if (!el.matches(':hover')) el.style.transform = `translateY(${bob}px)`;
+    });
+  }
+  requestAnimationFrame(bobLoop);
+}
+bobLoop();
+
+function renderAll() {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = ''; placed.length = 0;
+  const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+  let list = activeFilter === 'all' ? items : items.filter(i => i.cat === activeFilter);
+  if (q) list = list.filter(i =>
+    i.text.toLowerCase().includes(q) || (i.url && i.url.toLowerCase().includes(q))
+  );
+  list.forEach((item, index) => stage.appendChild(makeBubble(item, index, list.length)));
+}
+
+// ── Add ────────────────────────────────────────────────────
+async function addItem() {
+  const f = document.getElementById('field');
+  const raw = f.value.trim(); if (!raw) return;
+  const isUrl = /^https?:\/\//.test(raw);
+
+  // Disable button while processing
+  const btn = document.getElementById('sendBtn');
+  btn.textContent = '…'; btn.disabled = true;
+
+  let displayText = raw;
+  let url = isUrl ? raw : null;
+
+  if (isUrl) {
+    const title = await fetchTitle(raw);
+    if (title) displayText = title;
+  }
+
+  const item = {
+    id: Date.now(),
+    text: displayText,
+    url,
+    cat: autoCategory(displayText),
+    date: new Date().toLocaleDateString('zh-TW')
+  };
+
+  btn.textContent = '+'; btn.disabled = false;
+  items.unshift(item); save(); f.value = ''; f.style.height = 'auto';
+  renderAll(); doSplash();
+}
+function doSplash() {
+  const btn = document.getElementById('sendBtn');
+  const r = btn.getBoundingClientRect();
+  const el = document.createElement('div'); el.className = 'splash-ring';
+  el.style.left = (r.left + r.width / 2) + 'px';
+  el.style.top  = (r.top  + r.height/ 2) + 'px';
+  document.body.appendChild(el); setTimeout(() => el.remove(), 600);
+}
+
+// ── Panel ──────────────────────────────────────────────────
+function openPanel(item) {
+  activeItem = item;
+  document.getElementById('pCat').textContent  = catLabel[item.cat] || item.cat;
+  document.getElementById('pText').textContent = item.text;
+  document.getElementById('pDate').textContent = item.date;
+  const pl = document.getElementById('pLink');
+  if (item.url) { pl.href = item.url; pl.textContent = item.url; pl.style.display = 'block'; }
+  else pl.style.display = 'none';
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('overlay').classList.add('on');
+}
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('on');
+  activeItem = null;
+}
+document.getElementById('closeBtn').onclick  = closePanel;
+document.getElementById('overlay').onclick   = closePanel;
+document.getElementById('copyBtn').onclick = () => {
+  if (!activeItem) return;
+  const txt = activeItem.url || activeItem.text;
+  const btn = document.getElementById('copyBtn');
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  const ok = document.execCommand('copy');
+  document.body.removeChild(ta);
+  btn.textContent = ok ? '已複製 ✓' : '請手動複製';
+  setTimeout(() => btn.textContent = '複製', 2000);
+};
+// Generate markdown for one item or all items
+function toMarkdown(itemList) {
+  const catOrder = ['research','edu','parenting','creative','misc'];
+  const grouped = {};
+  catOrder.forEach(c => grouped[c] = []);
+  itemList.forEach(i => { if (grouped[i.cat]) grouped[i.cat].push(i); });
+
+  let md = `# 靈感之海 — 匯出\n_${new Date().toLocaleDateString('zh-TW')}_\n\n`;
+  catOrder.forEach(cat => {
+    const list = grouped[cat];
+    if (!list.length) return;
+    md += `## ${catLabel[cat]}\n\n`;
+    list.forEach(i => {
+      md += `- **${i.text}**`;
+      if (i.url && i.url !== i.text) md += `\n  ${i.url}`;
+      md += `\n  _${i.date}_\n\n`;
+    });
+  });
+  return md;
+}
+
+function copyMarkdown(md, btn, label) {
+  const ta = document.createElement('textarea');
+  ta.value = md;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  const ok = document.execCommand('copy');
+  document.body.removeChild(ta);
+  btn.textContent = ok ? '已複製 ✓ 貼入 NotebookLM' : '請手動複製';
+  setTimeout(() => btn.textContent = label, 2500);
+}
+
+document.getElementById('notebookBtn').onclick = () => {
+  if (!activeItem) return;
+  const md = toMarkdown([activeItem]);
+  copyMarkdown(md, document.getElementById('notebookBtn'), '→ NotebookLM');
+  window.open('https://notebooklm.google.com', '_blank');
+};
+document.getElementById('delBtn').onclick = () => {
+  if (!activeItem) return;
+  items = items.filter(i => i.id !== activeItem.id);
+  save(); closePanel(); renderAll();
+};
+
+document.querySelectorAll('.f-chip[data-f]').forEach(c => {
+  c.onclick = () => {
+    document.querySelectorAll('.f-chip[data-f]').forEach(x => x.classList.remove('active'));
+    c.classList.add('active'); activeFilter = c.dataset.f; renderAll();
+  };
+});
+
+const field = document.getElementById('field');
+field.addEventListener('input', () => { field.style.height = 'auto'; field.style.height = field.scrollHeight + 'px'; });
+field.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addItem(); } });
+document.getElementById('sendBtn').onclick = addItem;
+
+function trunc(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
+function save() { localStorage.setItem(SK, JSON.stringify(items)); }
+
+// Backup: download JSON
+document.getElementById('backupBtn').onclick = () => {
+  const btn = document.getElementById('backupBtn');
+  if (!items.length) { btn.textContent = '沒有內容'; setTimeout(() => btn.textContent = '備份 ↓', 1500); return; }
+  const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url; a.download = `靈感之海_${date}.json`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  btn.textContent = '已下載 ✓';
+  setTimeout(() => btn.textContent = '備份 ↓', 2000);
+};
+
+// Restore: import JSON
+document.getElementById('restoreInput').onchange = (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  const label = document.getElementById('restoreLabel');
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!Array.isArray(imported)) throw new Error('格式錯誤');
+      const cleaned = imported
+        .filter(i => i && typeof i === 'object')
+        .filter(i => typeof i.id === 'number' && typeof i.text === 'string')
+        .map(i => ({
+          id: i.id,
+          text: i.text,
+          url: typeof i.url === 'string' ? i.url : null,
+          cat: typeof i.cat === 'string' ? i.cat : autoCategory(i.text),
+          date: typeof i.date === 'string' ? i.date : new Date().toLocaleDateString('zh-TW')
+        }));
+      const existingIds = new Set(items.map(i => i.id));
+      const newItems = cleaned.filter(i => !existingIds.has(i.id));
+      items = [...newItems, ...items];
+      save(); renderAll();
+      label.firstChild.textContent = `還原 ${newItems.length} 筆 ✓`;
+      setTimeout(() => label.firstChild.textContent = '還原 ↑', 2500);
+    } catch(err) {
+      label.firstChild.textContent = '格式錯誤';
+      setTimeout(() => label.firstChild.textContent = '還原 ↑', 2000);
+    }
+    e.target.value = ''; // reset so same file can be re-imported
+  };
+  reader.readAsText(file);
+};
+document.getElementById('exportAllBtn').onclick = () => {
+  const btn = document.getElementById('exportAllBtn');
+  if (!items.length) { btn.textContent = '沒有內容'; setTimeout(() => btn.textContent = '匯出全部', 1500); return; }
+  const md = toMarkdown(items);
+  copyMarkdown(md, btn, '匯出全部');
+  window.open('https://notebooklm.google.com', '_blank');
+};
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+searchInput.addEventListener('input', () => {
+  searchClear.classList.toggle('show', searchInput.value.length > 0);
+  renderAll();
+});
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchClear.classList.remove('show');
+  renderAll();
+});
+
+window.addEventListener('resize', () => { resizeCanvas(); renderAll(); });
+setTimeout(renderAll, 150);
+</script>
+</body>
+</html>
