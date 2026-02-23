@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2732" width="2048" height="2732">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d8f0fc"/>
+      <stop offset="60%" stop-color="#a0d8f0"/>
+      <stop offset="100%" stop-color="#5aafcc"/>
+    </linearGradient>
+    <linearGradient id="wave1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5aafcc"/>
+      <stop offset="100%" stop-color="#2a7090"/>
+    </linearGradient>
+    <linearGradient id="wave2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d8faa"/>
+      <stop offset="100%" stop-color="#1a5068"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fffbe0"/>
+      <stop offset="55%" stop-color="#f8d840"/>
+      <stop offset="100%" stop-color="#f8d84000"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky background -->
+  <rect width="2048" height="2732" fill="url(#sky)"/>
+
+  <!-- Sun glow -->
+  <circle cx="320" cy="520" r="300" fill="url(#sun)" opacity="0.6"/>
+  <!-- Sun core -->
+  <circle cx="320" cy="520" r="130" fill="#f8d840" opacity="0.95"/>
+
+  <!-- Soft clouds -->
+  <ellipse cx="900" cy="340" rx="320" ry="70" fill="rgba(255,255,255,0.45)" filter="blur(30px)"/>
+  <ellipse cx="1500" cy="260" rx="240" ry="55" fill="rgba(255,255,255,0.35)" filter="blur(24px)"/>
+  <ellipse cx="1800" cy="420" rx="180" ry="45" fill="rgba(255,255,255,0.3)" filter="blur(20px)"/>
+
+  <!-- Title -->
+  <text x="1024" y="1100" text-anchor="middle"
+    font-family="'Noto Serif TC', serif" font-size="160" font-weight="300"
+    fill="#1a4a5e" letter-spacing="60" opacity="0.92">靈感之海</text>
+
+  <!-- Subtitle -->
+  <text x="1024" y="1220" text-anchor="middle"
+    font-family="'Noto Serif TC', serif" font-size="56" font-weight="300"
+    fill="#3a7a94" letter-spacing="18" opacity="0.65">每一個念頭，都值得漂浮於此</text>
+
+  <!-- Bubbles floating -->
+  <circle cx="580" cy="1480" r="80" fill="rgba(169,144,184,0.55)"/>
+  <circle cx="820" cy="1420" r="55" fill="rgba(122,170,150,0.55)"/>
+  <circle cx="1200" cy="1460" r="70" fill="rgba(122,157,181,0.55)"/>
+  <circle cx="1480" cy="1400" r="50" fill="rgba(192,160,128,0.55)"/>
+  <circle cx="1700" cy="1460" r="65" fill="rgba(143,164,174,0.5)"/>
+
+  <!-- Back wave -->
+  <path d="M0 1680 C200 1620, 400 1580, 600 1620 S900 1700, 1200 1660 S1600 1580, 2048 1620 L2048 2732 L0 2732 Z"
+    fill="url(#wave2)" opacity="0.55"/>
+
+  <!-- Front wave -->
+  <path d="M0 1760 C180 1700, 380 1670, 580 1710 S900 1790, 1200 1745 S1680 1660, 2048 1700 L2048 2732 L0 2732 Z"
+    fill="url(#wave1)"/>
+
+  <!-- Wave crest -->
+  <path d="M0 1760 C180 1700, 380 1670, 580 1710 S900 1790, 1200 1745 S1680 1660, 2048 1700"
+    fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="6"/>
+</svg>
