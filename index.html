@@ -559,7 +559,7 @@ async function addItem() {
   const btn = document.getElementById('sendBtn');
   btn.textContent = '…'; btn.disabled = true;
 
-  let displayText = raw;
+  let displayText = isUrl ? cleanUrl(raw) : raw;
   let url = isUrl ? cleanUrl(raw) : null;
 
   if (isUrl) {
